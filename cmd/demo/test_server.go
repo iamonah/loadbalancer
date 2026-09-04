@@ -17,6 +17,7 @@ func (ds *DemoServer1) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Hello from demo server 1!"))
 }
+
 type DemoServer2 struct {
 }
 
@@ -24,6 +25,7 @@ func (ds *DemoServer2) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Hello from demo server 2!"))
 }
+
 type DemoServer3 struct {
 }
 
@@ -37,6 +39,11 @@ func main() {
 	ds2 := &DemoServer2{}
 	ds3 := &DemoServer3{}
 	go http.ListenAndServe(fmt.Sprintf(":%d", *flagPort1), ds1)
-	go http.ListenAndServe(fmt.Sprintf(":%d", *flagPort2), ds2)
-	http.ListenAndServe(fmt.Sprintf(":%d", *flagPort3), ds3)
+	go http.ListenAndServe(fmt.Sprintf(":%d", *flagPort3), ds3)
+	err := http.ListenAndServe(
+		fmt.Sprintf(":%d", *flagPort2),
+		ds2,
+	)
+
+	fmt.Println("server stopped:", err)
 }

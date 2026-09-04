@@ -1,6 +1,6 @@
 # Go Load Balancer
 
-A high-performance, multi-tier load balancer written in Go, supporting Layer 4 (TCP) and Layer 7 (HTTP) proxying. It distributes TCP connections and HTTP requests across backend instances, with support for application-aware routing, health checking, and multiple load-balancing strategies.
+A high-performance, multi-service load balancer written in Go, supporting Layer 4 (TCP) and Layer 7 (HTTP) proxying. It routes traffic across independently managed services, where each service can expose multiple backend replicas and use its own load-balancing strategy. The system provides application-aware routing, health-aware backend selection, concurrent traffic distribution, and an extensible architecture for adding new routing and balancing policies.
 
 ## Features
 
