@@ -1,18 +1,33 @@
 package strategy
 
-import "sync/atomic"
+import (
+	"fmt"
+	"sync/atomic"
+)
+
+type StrategyType string
+
+const (
+	RoundRobin         StrategyType = "round-robin"
+	WeightedRoundRobin StrategyType = "weighted-round-robin"
+	LeastConnections   StrategyType = "least-connections"
+)
+
+func (s StrategyType) StrategyType() string {
+	return string(s)
+}
 
 type Strategy interface {
 	NextServer() uint32
 }
 
-type RoundRobin struct {
+type RoundRobinAlgo struct {
 	Current          atomic.Uint32
 	LengthofReplicas atomic.Uint32
 }
 
-func NewRoundRobin(length uint32) *RoundRobin {
-	rr := &RoundRobin{
+func NewRoundRobin(length uint32) *RoundRobinAlgo {
+	rr := &RoundRobinAlgo{
 		Current:          atomic.Uint32{},
 		LengthofReplicas: atomic.Uint32{},
 	}
@@ -20,7 +35,7 @@ func NewRoundRobin(length uint32) *RoundRobin {
 	return rr
 }
 
-func (rr *RoundRobin) NextServer() uint32 {
+func (rr *RoundRobinAlgo) NextServer() uint32 {
 	length := uint32(rr.LengthofReplicas.Load())
 	for {
 		current := rr.Current.Load()
@@ -35,7 +50,7 @@ func (rr *RoundRobin) NextServer() uint32 {
 	}
 }
 
-type WeightedRoundRobin struct {
+type WeightedRoundRobinAlgo struct {
 	Current          atomic.Uint32
 	LengthofReplicas atomic.Uint32
 	Weights          []uint32
@@ -44,4 +59,27 @@ type WeightedRoundRobin struct {
 	GCD              uint32
 }
 
-func (wrr *WeightedRoundRobin) NextServer() uint32 { return 0 }
+func NewWeightedRoundRobin(length uint32, weights []uint32) *WeightedRoundRobinAlgo { return nil }
+func (wrr *WeightedRoundRobinAlgo) NextServer() uint32                              { return 0 }
+
+type StrategyConfig struct {
+	Type    StrategyType
+	Weights []uint32
+}
+
+func NewStrategy(cfg StrategyConfig, length uint32) (Strategy, error) {
+
+	switch cfg.Type {
+	case RoundRobin:
+		return NewRoundRobin(length), nil
+
+	case WeightedRoundRobin:
+		return NewWeightedRoundRobin(length, cfg.Weights), nil
+
+	// case LeastConnections:
+	// return NewLeastConnections(), nil
+
+	default:
+		return nil, fmt.Errorf("unsupported strategy: %s", cfg.Type)
+	}
+}
