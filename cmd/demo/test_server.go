@@ -1,0 +1,42 @@
+package main
+
+import (
+	"flag"
+	"fmt"
+	"net/http"
+)
+
+var flagPort1 = flag.Int("port1", 8081, "listening port")
+var flagPort2 = flag.Int("port2", 8082, "listening port")
+var flagPort3 = flag.Int("port3", 8083, "listening port")
+
+type DemoServer1 struct {
+}
+
+func (ds *DemoServer1) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Hello from demo server 1!"))
+}
+type DemoServer2 struct {
+}
+
+func (ds *DemoServer2) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Hello from demo server 2!"))
+}
+type DemoServer3 struct {
+}
+
+func (ds *DemoServer3) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Hello from demo server 3!"))
+}
+func main() {
+	flag.Parse()
+	ds1 := &DemoServer1{}
+	ds2 := &DemoServer2{}
+	ds3 := &DemoServer3{}
+	go http.ListenAndServe(fmt.Sprintf(":%d", *flagPort1), ds1)
+	go http.ListenAndServe(fmt.Sprintf(":%d", *flagPort2), ds2)
+	http.ListenAndServe(fmt.Sprintf(":%d", *flagPort3), ds3)
+}
