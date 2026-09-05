@@ -8,5 +8,4 @@ services:
     replicas:
       - http://localhost:9091
       - http://localhost:9092
-    strategy:
-      type: least-connections
+    strategy: weighted-round-robin
