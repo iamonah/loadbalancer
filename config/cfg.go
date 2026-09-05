@@ -1,26 +1,29 @@
 package config
 
-type Service struct {
-	Name     string
-	Replicas []string
-	Strategy string
-}
+import (
+	"fmt"
+	"io"
 
+	"go.yaml.in/yaml/v4"
+)
+
+type Service struct {
+	Name     string   `yaml:"name"`
+	Replicas []string `yaml:"replicas"`
+	Strategy string   `yaml:"strategy"`
+	Weights  []uint32 `yaml:"weights"`
+}
 type Config struct {
-	Services       map[string]*Service
+	Services []*Service `yaml:"services"`
+	//Todo: remember to deal with this defualt
 	DefaultService string
 }
 
-func LoadConfig() *Config {
-	return &Config{
-		Services: map[string]*Service{
-			"TestService": {
-				Name:     "TestService",
-				Replicas: []string{"http://localhost:8081", "http://localhost:8082", "http://localhost:8083"},
-				Strategy: "round-robin",
-			},
-		},
-		DefaultService: "TestService",
+func LoadConfig(reader io.Reader) (*Config, error) {
+	var config Config
+	err := yaml.NewDecoder(reader).Decode(&config)
+	if err != nil {
+		return nil, fmt.Errorf("loadconfig: %w", err)
 	}
-
+	return &config, nil
 }

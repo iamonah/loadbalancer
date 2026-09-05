@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/iamonah/loadbalancer/config"
@@ -19,7 +20,18 @@ func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	flag.Parse()
 
-	cfg := config.LoadConfig()
+	file, err := os.Open("config.yaml")
+	if err != nil {
+		log.Fatal().Msg("Failed to open config file: " + err.Error())
+	}
+	defer file.Close()
+
+	cfg, err := config.LoadConfig(file)
+	if err != nil {
+		log.Error().Msg("Failed to load config: " + err.Error())
+		return
+	}
+	
 	lb, err := l7.NewLoadBalancer(cfg)
 	if err != nil {
 		log.Error().Msg("Failed to create load balancer: " + err.Error())

@@ -1,0 +1,12 @@
+services:
+  - name: service1
+    replicas:
+      - http://localhost:8081
+      - http://localhost:8082
+    strategy: round-robin
+  - name: service2
+    replicas:
+      - http://localhost:9091
+      - http://localhost:9092
+    strategy:
+      type: least-connections
