@@ -9,14 +9,13 @@ import (
 
 type Service struct {
 	Name     string   `yaml:"name"`
+	Matcher  string   `yaml:"matcher"`
 	Replicas []string `yaml:"replicas"`
 	Strategy string   `yaml:"strategy"`
 	Weights  []uint32 `yaml:"weights"`
 }
 type Config struct {
 	Services []*Service `yaml:"services"`
-	//Todo: remember to deal with this defualt
-	DefaultService string
 }
 
 func LoadConfig(reader io.Reader) (*Config, error) {

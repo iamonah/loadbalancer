@@ -8,11 +8,13 @@ import (
 func TestConfig(t *testing.T) {
 	data := strings.NewReader(`services:
   - name: service1
+    matcher: /service1
     replicas:
       - http://localhost:8081
       - http://localhost:8082
     strategy: round-robin
   - name: service2
+    matcher: /service2
     replicas:
       - http://localhost:9091
       - http://localhost:9092
