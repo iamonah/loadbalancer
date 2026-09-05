@@ -54,27 +54,24 @@ A high-performance, multi-service load balancer written in Go, supporting Layer 
 The load balancer can be deployed as a multi-tier system where an L4 layer distributes TCP connections across multiple L7 load balancers. The L7 layer then handles HTTP routing and distributes requests across backend services.
 
 ```text
-                         Client
-                            |
-                            v
-                     +-------------+
-                     |   L4 Load   |
-                     |   Balancer  |
-                     +------+------+
-                            |
-             +--------------+--------------+
-             |              |              |
-             v              v              v
-          +------+       +------+       +------+
-          | L7-1 |       | L7-2 |       | L7-3 |
-          +--+---+       +--+---+       +--+---+
-             |              |              |
-             +--------------+--------------+
-                            |
-                  +---------+---------+
-                  |         |         |
-                  v         v         v
-                Users    Payments    Orders
+                    Client
+                       |
+                       v
+              +-----------------+
+              |  L7 Load Balancer|
+              +--------+--------+
+                       |
+          +------------+------------+
+          |            |            |
+          v            v            v
+       Users        Payments       Orders
+         |              |              |
+     Round Robin   Least Conn.   Weighted RR
+          |            |            |
+          v            v            v
+       [Pool]        [Pool]        [Pool]
+        / | \         / | \         / | \
+       U1 U2 U3      P1 P2 P3      O1 O2 O3
 ```
 
 ## Configuration
