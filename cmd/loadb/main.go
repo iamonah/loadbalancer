@@ -14,13 +14,14 @@ import (
 
 var (
 	port = flag.Int("port", 8080, "listening port")
+	configFile = flag.String("config-path", "config.yaml", "path to config file")
 )
 
 func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	flag.Parse()
 
-	file, err := os.Open("config.yaml")
+	file, err := os.Open(*configFile)
 	if err != nil {
 		log.Fatal().Msg("Failed to open config file: " + err.Error())
 	}
@@ -31,7 +32,7 @@ func main() {
 		log.Error().Msg("Failed to load config: " + err.Error())
 		return
 	}
-	
+
 	lb, err := l7.NewLoadBalancer(cfg)
 	if err != nil {
 		log.Error().Msg("Failed to create load balancer: " + err.Error())
