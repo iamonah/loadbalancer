@@ -69,7 +69,7 @@ type StrategyConfig struct {
 
 func NewStrategy(cfg StrategyConfig, length uint32) (Strategy, error) {
 
-	switch cfg.Type {
+	switch StrategyType(cfg.Type) {
 	case RoundRobin:
 		return NewRoundRobin(length), nil
 
