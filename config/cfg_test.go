@@ -18,10 +18,32 @@ func TestConfig(t *testing.T) {
       - http://localhost:9092
     strategy: least-connections`)
 
-	_, err := LoadConfig(data)
+	config, err := LoadConfig(data)
 	if err != nil {
 		t.Fatalf("Failed to load config: %v", err)
 	}
 
+	if config.Services[0].Strategy != "round-robin" {
+		t.Errorf("Expected strategy 'round-robin', got '%s'", config.Services[0].Strategy)
+	}
 
+	if config.Services[1].Strategy != "least-connections" {
+		t.Errorf("Expected strategy 'least-connections', got '%s'", config.Services[1].Strategy)
+	}
+
+	if len(config.Services[0].Replicas) != 2 {
+		t.Errorf("Expected 2 replicas for service1, got %d", len(config.Services[0].Replicas))
+	}
+
+	if len(config.Services[1].Replicas) != 2 {
+		t.Errorf("Expected 2 replicas for service2, got %d", len(config.Services[1].Replicas))
+	}
+
+	if config.Services[0].Replicas[0] != "http://localhost:8081" {
+		t.Errorf("Expected first replica of service1 to be 'http://localhost:8081', got '%s'", config.Services[0].Replicas[0])
+	}
+
+	if config.Services[1].Replicas[1] != "http://localhost:9092" {
+		t.Errorf("Expected second replica of service2 to be 'http://localhost:9092', got '%s'", config.Services[1].Replicas[1])
+	}
 }
