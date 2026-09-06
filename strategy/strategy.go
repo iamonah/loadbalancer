@@ -19,6 +19,7 @@ func (s StrategyType) StrategyType() string {
 
 type Strategy interface {
 	NextServer() uint32
+	AddBackendCount(length uint32)
 }
 
 type RoundRobinAlgo struct {
@@ -50,6 +51,11 @@ func (rr *RoundRobinAlgo) NextServer() uint32 {
 	}
 }
 
+func (rr *RoundRobinAlgo) AddBackendCount(length uint32) {
+	newLength := rr.LengthofReplicas.Load() + length
+	rr.LengthofReplicas.Store(newLength)
+}
+
 type WeightedRoundRobinAlgo struct {
 	Current          atomic.Uint32
 	LengthofReplicas atomic.Uint32
@@ -61,6 +67,7 @@ type WeightedRoundRobinAlgo struct {
 
 func NewWeightedRoundRobin(length uint32, weights []uint32) *WeightedRoundRobinAlgo { return nil }
 func (wrr *WeightedRoundRobinAlgo) NextServer() uint32                              { return 0 }
+func (wrr *WeightedRoundRobinAlgo) AddBackendCount(length uint32)                {}
 
 type StrategyConfig struct {
 	Type    StrategyType
