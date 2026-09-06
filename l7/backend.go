@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-
-	"github.com/rs/zerolog/log"
 )
 
 type Backend struct {
@@ -43,12 +41,6 @@ func NewBackend(url *url.URL, matcher string) *Backend {
 				req.Header.Set("X-Forwarded-Proto", "http")
 			}
 
-			log.Info().Msgf(
-				"L7 Proxy routing request: %s %s to %s",
-				req.URL.Path,
-				req.URL.Host,
-				req.URL.Scheme,
-			)
 		},
 	}
 	return &Backend{

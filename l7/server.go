@@ -14,7 +14,8 @@ type l7Server struct {
 	// Note(self): The matcher could be more sophisticated, such as regex-
 	// or subdomain-based matching, but for now we use simple string matching.
 	servicePools map[string]*BackendPool
-	config       *config.Config
+	// this could later come from an external config file or service discovery mechanism
+	config *config.Config
 }
 
 func NewLoadBalancer(cfg *config.Config) (*l7Server, error) {
@@ -38,21 +39,29 @@ func (lb *l7Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	pool, ok := lb.findPool(r.URL.Path)
 	if !ok {
-		http.NotFound(w, r)
+		http.Error(w, "Service Unavailable", http.StatusServiceUnavailable)
+		log.Warn().Msgf("No matching service pool found for request path: %s", r.URL.Path)
 		return
 	}
 
-	server := pool.GetNextBackend()
-	log.Info().Msgf("Forwarding request to service %s at %s", pool.serviceName, server.url.String())
+	server := pool.getNextBackend()
+	log.Info().Msgf(
+		"L7 Proxy routing request: path: %s host: %s scheme: %s",
+		r.URL.Path,
+		r.URL.Host,
+		r.URL.Scheme,
+	)
 	server.forward(w, r)
 }
 
 // Note(self): Prefix matching is currently O(N) because we iterate over
 // configured matchers. This is fine for now, but i will consider using a trie/radix
 // tree if the number of routes grows significantly.
-func (lb *l7Server) findPool(path string) (*BackendPool, bool) {
+func (lb *l7Server) findPool(reqPath string) (*BackendPool, bool) {
+	log.Info().Msgf("Finding pool for request path: %s", reqPath)
 	for matcher, pool := range lb.servicePools {
-		if path == matcher || strings.HasPrefix(path, matcher+"/") {
+		if reqPath == matcher || strings.HasPrefix(reqPath, matcher+"/") {
+			log.Info().Msgf("Matched request path %s to service %s", reqPath, pool.serviceName)
 			return pool, true
 		}
 	}

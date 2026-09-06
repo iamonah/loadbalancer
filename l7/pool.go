@@ -61,7 +61,7 @@ func NewServerPool(svcCfg *config.Service) (*BackendPool, error) {
 	return &BackendPool{serviceName: svcCfg.Name, Backends: backends, Strategy: strategy}, nil
 }
 
-func (sp *BackendPool) GetNextBackend() *Backend {
+func (sp *BackendPool) getNextBackend() *Backend {
 	nextIndex := sp.Strategy.NextServer()
 	sp.mutex.RLock()
 	defer sp.mutex.RUnlock()
