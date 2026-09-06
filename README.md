@@ -25,9 +25,9 @@ The target architecture separates connection-level routing from application-leve
                      \    /
                       \  /
                        v
-               +----------------+
-               | L7 Route Table |
-               +----------------+
+                +----------------+
+                | L7 Route Table |
+                +----------------+
                   /      |      \
                  v       v       v
              +-------+ +----------+ +--------+
@@ -73,6 +73,7 @@ The current path matcher supports exact and prefix matches.
 - Failure handling and request retries where appropriate
 - Dynamic backend management and service discovery
 - Additional strategies, including least-connections and weighted round robin
+- Pool coordination using a Left-Right wait-free pattern for read-heavy traffic
 
 ## Request Path
 
@@ -99,7 +100,9 @@ Each pool delegates backend selection to a strategy. The implemented strategy is
 
 ## Pool Coordination
 
-Round-robin selection uses atomic state so concurrent requests can advance the selection index safely. Backend-pool access uses an `RWMutex`, providing a safe foundation for the dynamic backend management and health-checking work that will follow. The implementation does not yet claim wait-free pool updates or failure retries.
+Each `BackendPool` owns the strategy selected for its service. This keeps backend selection independent: one service can use round robin while another uses a different strategy as those implementations are added.
+
+The current round-robin implementation uses atomic state so concurrent requests can advance its selection index safely. Backend-pool access uses an `RWMutex`, providing a safe foundation for dynamic backend management and health checking. Weighted round robin and least-connections remain planned strategy implementations.
 
 ## Service Configuration
 
