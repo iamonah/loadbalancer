@@ -36,11 +36,12 @@ func NewLoadBalancer(cfg *config.Config) (*l7Server, error) {
 func (lb *l7Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Info().Msgf("Received new request for %s", r.URL.String())
 
-	pool, ok := lb.findPool(r.URL.RawPath)
+	pool, ok := lb.findPool(r.URL.Path)
 	if !ok {
 		http.NotFound(w, r)
 		return
 	}
+
 	server := pool.GetNextBackend()
 	log.Info().Msgf("Forwarding request to service %s at %s", pool.serviceName, server.url.String())
 	server.forward(w, r)
