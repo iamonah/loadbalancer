@@ -16,6 +16,7 @@ type Service struct {
 }
 type Config struct {
 	Services []*Service `yaml:"services"`
+	Mode     string     `yaml:"mode"`
 }
 
 func LoadConfig(reader io.Reader) (*Config, error) {

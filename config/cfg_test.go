@@ -8,7 +8,7 @@ import (
 func TestConfig(t *testing.T) {
 	data := strings.NewReader(`services:
   - name: service1
-    matcher: /service1
+    matcher: /api/v1/payments
     replicas:
       - http://localhost:8081
       - http://localhost:8082
@@ -23,6 +23,11 @@ func TestConfig(t *testing.T) {
 	config, err := LoadConfig(data)
 	if err != nil {
 		t.Fatalf("Failed to load config: %v", err)
+	}
+
+
+	if config.Services[0].Matcher != "/api/v1/payments" {
+		t.Errorf("Expected matcher '/api/v1/payments', got '%s'", config.Services[0].Matcher)
 	}
 
 	if config.Services[0].Strategy != "round-robin" {
