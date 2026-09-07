@@ -2,18 +2,35 @@ package strategy
 
 import (
 	"fmt"
+	"strings"
 	"sync/atomic"
 )
 
 type StrategyType string
 
-const (
-	RoundRobin         StrategyType = "round-robin"
-	WeightedRoundRobin StrategyType = "weighted-round-robin"
-	LeastConnections   StrategyType = "least-connections"
+var (
+	RoundRobin         StrategyType = newStrategyType("round-robin")
+	WeightedRoundRobin StrategyType = newStrategyType("weighted-round-robin")
+	LeastConnections   StrategyType = newStrategyType("least-connections")
 )
 
-func (s StrategyType) StrategyType() string {
+var strategyTypes = make(map[string]StrategyType)
+
+func newStrategyType(s string) StrategyType {
+	st := StrategyType(s)
+	strategyTypes[strings.ToLower(s)] = st
+	return st
+}
+
+func ParseStrategyType(s string) (StrategyType, error) {
+	st, ok := strategyTypes[strings.ToLower(s)]
+	if !ok {
+		return "", fmt.Errorf("invalid strategy type: %s", s)
+	}
+	return st, nil
+}
+
+func (s StrategyType) String() string {
 	return string(s)
 }
 
@@ -67,16 +84,20 @@ type WeightedRoundRobinAlgo struct {
 
 func NewWeightedRoundRobin(length uint32, weights []uint32) *WeightedRoundRobinAlgo { return nil }
 func (wrr *WeightedRoundRobinAlgo) NextServer() uint32                              { return 0 }
-func (wrr *WeightedRoundRobinAlgo) AddBackendCount(length uint32)                {}
+func (wrr *WeightedRoundRobinAlgo) AddBackendCount(length uint32)                   {}
 
 type StrategyConfig struct {
-	Type    StrategyType
+	Type    string
 	Weights []uint32
 }
 
 func NewStrategy(cfg StrategyConfig, length uint32) (Strategy, error) {
+	st, err := ParseStrategyType(cfg.Type)
+	if err != nil {
+		return nil, err
+	}
 
-	switch StrategyType(cfg.Type) {
+	switch st {
 	case RoundRobin:
 		return NewRoundRobin(length), nil
 
