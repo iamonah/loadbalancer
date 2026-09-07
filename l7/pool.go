@@ -51,8 +51,14 @@ func NewServerPool(svcCfg *config.Service) (*BackendPool, error) {
 		backends = append(backends, backend)
 	}
 
+	// If no strategy is defined, default to round-robin
+	if svcCfg.Strategy == nil {
+		defaultStrategy := "round-robin"
+		svcCfg.Strategy = &defaultStrategy
+	}
+
 	strategy, err := strategy.NewStrategy(
-		strategy.StrategyConfig{Type: strategy.StrategyType(svcCfg.Strategy), Weights: svcCfg.Weights},
+		strategy.StrategyConfig{Type: *svcCfg.Strategy, Weights: svcCfg.Weights},
 		uint32(len(svcCfg.Replicas)),
 	)
 	if err != nil {

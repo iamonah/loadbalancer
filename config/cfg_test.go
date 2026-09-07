@@ -30,12 +30,12 @@ func TestConfig(t *testing.T) {
 		t.Errorf("Expected matcher '/api/v1/payments', got '%s'", config.Services[0].Matcher)
 	}
 
-	if config.Services[0].Strategy != "round-robin" {
-		t.Errorf("Expected strategy 'round-robin', got '%s'", config.Services[0].Strategy)
+	if *config.Services[0].Strategy != "round-robin" {
+		t.Errorf("Expected strategy 'round-robin', got '%s'", *config.Services[0].Strategy)
 	}
 
-	if config.Services[1].Strategy != "least-connections" {
-		t.Errorf("Expected strategy 'least-connections', got '%s'", config.Services[1].Strategy)
+	if *config.Services[1].Strategy != "least-connections" {
+		t.Errorf("Expected strategy 'least-connections', got '%s'", *config.Services[1].Strategy)
 	}
 
 	if len(config.Services[0].Replicas) != 2 {

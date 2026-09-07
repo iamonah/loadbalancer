@@ -11,12 +11,13 @@ type Service struct {
 	Name     string   `yaml:"name"`
 	Matcher  string   `yaml:"matcher"`
 	Replicas []string `yaml:"replicas"`
-	Strategy string   `yaml:"strategy"`
+	Strategy *string   `yaml:"strategy"`
 	Weights  []uint32 `yaml:"weights"`
 }
 type Config struct {
-	Services []*Service `yaml:"services"`
-	Mode     string     `yaml:"mode"`
+	Services        []*Service `yaml:"services"`
+	Mode            string     `yaml:"mode"`
+	DefaultStrategy string     `yaml:"default_strategy=round-robin"`
 }
 
 func LoadConfig(reader io.Reader) (*Config, error) {
